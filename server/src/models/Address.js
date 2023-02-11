@@ -32,6 +32,12 @@ const addressSchema = new Schema({
     user:{
         type: Schema.Types.ObjectId,
         ref:'users'
+    },
+    lat:{
+        type: Number,
+    },
+    lon:{
+        type: Number,
     }
 }, {timestamps:true});
 
