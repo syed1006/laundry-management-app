@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 // configuring environmental variables
 dotenv.config();
 
-const port = process.env.PORT
+const port = process.env.PORT || 5000;
 const db_url = process.env.DATABASE_URL;
 
 mongoose.connect(db_url,{ useNewUrlParser: true, useUnifiedTopology: true }, () => {
