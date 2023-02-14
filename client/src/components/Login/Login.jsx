@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import {Link} from 'react-router-dom';
 import axios from '../../helpers/axios'
+import CompanyText from '../CompanyText/CompanyText';
+import SubFooter from '../Sub-footer/SubFooter';
+import './Login.css';
 
 const Login = ()=>{
     const [data, setData] = useState({'email':'', 'password':''});
-    const [showPass, togglePass] = useState(false);
+    const [showPass, togglePass] = useState(true);
 
     const handleLogin = async(e)=>{
         e.preventDefault();
@@ -19,21 +22,18 @@ const Login = ()=>{
     }
     return(
         <>  
-        <section className="conatiner">
-            <section className="text-container">
-                <h1 className='heading-logo'><span>Laundry</span><span>Service</span></h1>
-                <h5 className='tag-line' >Doorstep Wash & Dryclean Service</h5>
-                <p>Don't Have An Account</p>
-                <Link to={'/register'}>Register</Link>
-            </section>
+        <section className="container">
+            <CompanyText path='/register' text='Register'/>
             <section className="form-container">
                 <h2>SIGN IN</h2>
                 <form onSubmit={handleLogin}>
                     <div className='input-container'>
                         <input 
+                        className='input-item'
                         type={'text'} 
                         name='email' 
-                        placeholder='Email' 
+                        placeholder='Email'
+                        autoComplete='off'  
                         value={data.email}
                         onChange={(e)=>{setData({...data, email: e.target.value})}}
                         required
@@ -41,9 +41,11 @@ const Login = ()=>{
                     </div>
                     <div className="input-container">
                         <input 
+                        className='input-item'
                         type={showPass? 'password': 'text'}
                         name='password' 
-                        placeholder='Password' 
+                        placeholder='Password'
+                        autoComplete='off' 
                         value={data.password}
                         onChange={(e)=>{setData({...data, password: e.target.value})}}
                         required
@@ -55,6 +57,11 @@ const Login = ()=>{
                 </form>
             </section>
         </section>
+        <section className="referals">
+            <h3>Now Refer & Earn ₹500 for every referral*</h3>
+            <p>* Terms and conditions will be applied</p>
+        </section>
+        <SubFooter/>
         </>
     )
 }
