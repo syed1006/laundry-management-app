@@ -1,0 +1,16 @@
+.sub-footer{
+    display: flex;
+    justify-content: space-evenly;
+    text-align: left;
+    padding: 30px 0px ;
+}
+.sub-footer a{
+    text-decoration: none;
+    display: block;
+    color: #182838;
+    margin: 10px 0px;
+}
+
+.sub-footer>section>a:first-child{
+    font-weight: bold;
+}
