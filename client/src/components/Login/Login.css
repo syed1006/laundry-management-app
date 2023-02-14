@@ -120,7 +120,7 @@
     font-size: 10px;
 }
 
-#show-password{
+.show-password{
     display: inline-block;
     width: 25px;
     height: 25px;

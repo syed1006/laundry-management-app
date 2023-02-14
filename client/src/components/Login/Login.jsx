@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import {Link} from 'react-router-dom';
 import axios from '../../helpers/axios'
 import CompanyText from '../CompanyText/CompanyText';
 import SubFooter from '../Sub-footer/SubFooter';
@@ -56,10 +55,6 @@ const Login = ()=>{
                     <button>Sign in</button>
                 </form>
             </section>
-        </section>
-        <section className="referals">
-            <h3>Now Refer & Earn ₹500 for every referral*</h3>
-            <p>* Terms and conditions will be applied</p>
         </section>
         <SubFooter/>
         </>
