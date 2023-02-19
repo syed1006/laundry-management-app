@@ -25,27 +25,36 @@ router.post('/register', [
             errors: errors.array() 
         });
     }
-    const {name, email, password} = req.body;
+    const {name, email, password, resend=false} = req.body;
     try{
         //check whether a user with this email already exist
         let user = await User.findOne({email});
-        if(user){
-            if(user.status === 'active'){
-                return res.status(400).json({
-                    status: 'failure',
-                    message: 'A user already exists with this email!'
+        if(!resend){
+            if(user){
+                if(user.status === 'active'){
+                    return res.status(400).json({
+                        status: 'failure',
+                        message: 'A user already exists with this email!'
+                    })
+                }
+                else{
+                    const hash = await bcrypt.hash(password, 10);
+                    await User.updateOne({email}, {$set: {name, password: hash}})
+                }
+            }else{
+                const hash = await bcrypt.hash(password, 10);
+                user = await User.create({
+                    name,
+                    email,
+                    password: hash
                 })
             }
-            else{
-                const hash = await bcrypt.hash(password, 10);
-                await User.updateOne({email}, {$set: {name, password: hash}})
-            }
-        }else{
-            const hash = await bcrypt.hash(password, 10);
-            user = await User.create({
-                name,
-                email,
-                password: hash
+        }
+        if(user.status === 'active'){
+            return res.status(400).json({
+                status: 'failure',
+                message: 'accout is already active',
+                active: true
             })
         }
         //creating a jwt token asynchronously and sending the verification email
@@ -58,9 +67,8 @@ router.post('/register', [
                 expiresIn: '1d'
             },
             (err, emailToken)=>{
-                console.log('errors', err);
+                console.log(err);
                 const url = `${process.env.BACKEND}${process.env.PORT?process.env.PORT:5000}/user/verify/${emailToken}`
-
                 transporter.sendMail({
                     to: email,
                     subject: 'Confirm Your Email',
@@ -68,6 +76,7 @@ router.post('/register', [
                 })
             }
         )
+
         return res.status(200).json({
             status: 'success',
             message: 'verification email sent',

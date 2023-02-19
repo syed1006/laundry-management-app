@@ -4,4 +4,7 @@ footer{
     padding: 10px 0px;
     background-color: #182838;
     color: #707070;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
 }

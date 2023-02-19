@@ -4,7 +4,7 @@ const generatePassword = (n)=>{
     const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const lower = 'abcdefghigklmnopqrstuvwxyz';
     const numbers = '0123456789';
-    const symbol = '!@#$%^&*_';
+    const symbol = '!@#$%&';
     const characters = lower + upper + numbers + symbol;
 
     password += upper[Math.floor(Math.random() * upper.length)];

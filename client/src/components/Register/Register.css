@@ -1,4 +1,22 @@
 .generate-password{
     text-align: center;
     color: #4552C1;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.errors{
+    height: 20px;
+    color: red;
+    padding-left: 20%;
+    text-transform: capitalize;
+    margin-bottom: -10px;
+}
+
+@media only screen and (max-width: 800px) {
+
+    .container{
+        height: fit-content;
+        flex-direction: column;
+    }
 }
