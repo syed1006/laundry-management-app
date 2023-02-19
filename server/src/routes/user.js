@@ -2,21 +2,14 @@ const router = require('express').Router();
 const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
+const generateCode = require('../helpers/generateCode')
+//creating a transporter to send the verification emails;
+const transporter = require('../helpers/transporter')
 
 dotenv.config();
 const jwt_secret = process.env.JWT_SECRET;
-
-//creating a transporter to send the verification emails;
-const transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    auth:{
-        user: process.env.EMAIL,
-        pass: process.env.PWD
-    }
-})
 
 //Route-1: Creating a new user
 router.post('/register', [
@@ -32,27 +25,36 @@ router.post('/register', [
             errors: errors.array() 
         });
     }
-    const {name, email, password} = req.body;
+    const {name, email, password, resend=false} = req.body;
     try{
         //check whether a user with this email already exist
         let user = await User.findOne({email});
-        if(user){
-            if(user.status === 'active'){
-                return res.status(400).json({
-                    status: 'failure',
-                    message: 'A user already exists with this email!'
+        if(!resend){
+            if(user){
+                if(user.status === 'active'){
+                    return res.status(400).json({
+                        status: 'failure',
+                        message: 'A user already exists with this email!'
+                    })
+                }
+                else{
+                    const hash = await bcrypt.hash(password, 10);
+                    await User.updateOne({email}, {$set: {name, password: hash}})
+                }
+            }else{
+                const hash = await bcrypt.hash(password, 10);
+                user = await User.create({
+                    name,
+                    email,
+                    password: hash
                 })
             }
-            else{
-                const hash = await bcrypt.hash(password, 10);
-                await User.updateOne({email}, {$set: {name, password: hash}})
-            }
-        }else{
-            const hash = await bcrypt.hash(password, 10);
-            user = await User.create({
-                name,
-                email,
-                password: hash
+        }
+        if(user.status === 'active'){
+            return res.status(400).json({
+                status: 'failure',
+                message: 'accout is already active',
+                active: true
             })
         }
         //creating a jwt token asynchronously and sending the verification email
@@ -65,9 +67,8 @@ router.post('/register', [
                 expiresIn: '1d'
             },
             (err, emailToken)=>{
-                console.log('errors', err);
+                console.log(err);
                 const url = `${process.env.BACKEND}${process.env.PORT?process.env.PORT:5000}/user/verify/${emailToken}`
-
                 transporter.sendMail({
                     to: email,
                     subject: 'Confirm Your Email',
@@ -75,6 +76,7 @@ router.post('/register', [
                 })
             }
         )
+
         return res.status(200).json({
             status: 'success',
             message: 'verification email sent',
@@ -120,7 +122,6 @@ router.get('/verify/:token', async(req, res)=>{
 })
 
 //Route-3 : loging in the user to access the portal;
-
 router.post('/login',[
     body('email', "Enter a valid email!!").isEmail(),
     body('password', "Password length needs to be min 5 characters!!").isLength({min: 5})
@@ -172,5 +173,44 @@ router.post('/login',[
     }
 })
 
+//Route 4: Sending a verification code to email for forgot password
 
+router.post('/forgot_password',[
+    body('email', "Enter a valid email!!").isEmail()
+], async(req, res)=>{
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+            status:"failure",
+            errors: errors.array() 
+        });
+    }
+    const {email} = req.body
+    try{
+        const user = await User.findOne({email});
+        if (!user) {
+            return res.status(401).json({
+                status: 'failure',
+                message: "User doesn't exist please signup!!"
+            })
+        }
+        const code = generateCode(8);
+        const info = await transporter.sendMail({
+            to: email,
+            subject: 'Verification Code',
+            html:`Your One time code is: <b>${code}</b>`
+        })
+        res.status(200).json({
+            status: 'success',
+            code,
+            message: 'email has been sent'
+        })
+    }
+    catch(e){
+        return res.status(500).json({
+            status: 'failure',
+            message: e.message
+        })
+    }
+})
 module.exports = router

@@ -3,17 +3,46 @@ import CompanyText from "../CompanyText/CompanyText";
 import SubFooter from "../Sub-footer/SubFooter";
 import './Register.css';
 import generatePassword from '../../helpers/generate-password';
+import axios from '../../helpers/axios';
+import VerifyEmail from "../VerifyEmail/VerifyEmail";
 
 const Register = () => {
     const [data, setData] = useState({name: "", email: "", password: ""})
     const [showPass, togglePass] = useState(true);
+    const [err, setError] = useState("");
+    const [success, setSuccess] = useState(false);
+
+    const setToInitial = ()=>{
+        setData({name: "", email: "", password: ""});
+        togglePass(true);
+        setError("");
+        setSuccess(false)
+    }
 
     const createPassword = ()=>{
         const password = generatePassword(16);
+        togglePass(false)
         setData({...data, password});
     }
-    const handleRegister = (e)=>{
+    const handleRegister = async(e)=>{
         e.preventDefault();
+        try {
+            const res = await axios.post(
+                '/user/register',
+                data
+            );
+            if(res.data.status === 'success'){
+                setSuccess(true);
+            }
+        } catch ({response:{data}}) {
+            console.log(data);
+            setError(data.message)
+        }
+    }
+    if(success){
+        return (
+            <VerifyEmail data={data} count={2} setToInitial={setToInitial}/>
+        )
     }
     return (
         <>
@@ -21,6 +50,7 @@ const Register = () => {
                 <CompanyText path={'/login'} text='Sign In' />
                 <section className="form-container">
                     <h2>Register</h2>
+                    <p className="errors">{err}</p>
                     <form onSubmit={handleRegister}>
                     <div className='input-container'>
                         <input 

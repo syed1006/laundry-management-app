@@ -6,7 +6,7 @@ import './Navbar.css';
 const Navbar = ()=>{
     const {auth} = useAuth();
     let links;
-    if(auth === null){
+    if(auth.token === ""){
         links = {
             'Home': '/',
             'Pricing': '/pricing',

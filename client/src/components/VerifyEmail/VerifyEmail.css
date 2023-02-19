@@ -1,0 +1,70 @@
+.main-email{
+    min-height: calc(100vh - 100px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.verify-email{
+    width: 500px;
+    background-color: rgb(235, 234, 234);
+    padding: 20px;
+    box-shadow: 0 0 10px gray;
+}
+
+.verify-btn{
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.verify-btn>button{
+    font-size: 1rem;
+    padding: 0.5em 1em;
+    background-color: rgb(35, 31, 31);
+    color: azure;
+    border-radius: 4px;
+}
+
+.verify-btn>button:disabled{
+    background-color: rgb(46, 46, 46);
+    opacity: 0.5;
+}
+
+.hover-btn:hover{
+    font-weight: bold;
+}
+
+.verify-btn>span{
+    color: green;
+}
+
+.color-red{
+    color: red;
+}
+
+.error-modal{
+    position: absolute;
+    font-weight: bold;
+    top: -300px;
+    z-index: 1;
+}
+
+.error-modal>a, .error-modal>button{
+    text-decoration: none;
+    display: inline-block;
+    color: white;
+    background-color: grey;
+    font-size: 1rem;
+    padding: 0.5em 1em;
+    margin-top: 20px;
+}
+
+.error-modal>a:hover, .error-modal>button:hover{
+    background-color: rgb(42, 42, 42);
+}
+
+.error-animation{
+    top: 100px;
+    transition: top 0.5s ease-in ;
+}
