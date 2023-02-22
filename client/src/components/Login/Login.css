@@ -89,6 +89,11 @@
     color: #4552C1;
 }
 
+.forgot-password>a{
+    text-decoration: none;
+    font-weight: bold;
+}
+
 .input-item{
     border: none;
     color: #77838F;

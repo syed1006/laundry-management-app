@@ -32,7 +32,7 @@ router.post('/register', [
         if(!resend){
             if(user){
                 if(user.status === 'active'){
-                    return res.status(400).json({
+                    return res.status(401).json({
                         status: 'failure',
                         message: 'A user already exists with this email!'
                     })
@@ -50,7 +50,7 @@ router.post('/register', [
                 })
             }
         }
-        if(user.status === 'active'){
+        else if(user.status === 'active'){
             return res.status(400).json({
                 status: 'failure',
                 message: 'accout is already active',
@@ -77,7 +77,7 @@ router.post('/register', [
             }
         )
 
-        return res.status(200).json({
+        return res.status(201).json({
             status: 'success',
             message: 'verification email sent',
             user
@@ -138,7 +138,7 @@ router.post('/login',[
     try{
         let user = await User.findOne({email});
         if (!user) {
-            return res.status(400).json({
+            return res.status(401).json({
                 status: 'failure',
                 message: "User doesn't exist please signup!!"
             })
@@ -146,14 +146,14 @@ router.post('/login',[
         else if(user.status === 'pending'){
             return res.status(401).json({
                 status: 'failure',
-                message: "Verify your email address!!"
+                message: "Please verify your email address before Sign In!!"
             })
         }
         const result = await bcrypt.compare(password, user.password)
         if (!result) {
             return res.status(401).json({
                 status: 'failure',
-                message: 'Invalid credentials'
+                message: "Email and Password doesn't match"
             })
         }
         const token = jwt.sign({
@@ -175,7 +175,7 @@ router.post('/login',[
 
 //Route 4: Sending a verification code to email for forgot password
 
-router.post('/forgot_password',[
+router.post('/forgotPassword',[
     body('email', "Enter a valid email!!").isEmail()
 ], async(req, res)=>{
     const errors = validationResult(req);
@@ -194,8 +194,14 @@ router.post('/forgot_password',[
                 message: "User doesn't exist please signup!!"
             })
         }
+        else if(user.status === 'pending'){
+            return res.status(401).json({
+                status: 'failure',
+                message: "Please verify your email or register again!!"
+            })
+        }
         const code = generateCode(8);
-        const info = await transporter.sendMail({
+        transporter.sendMail({
             to: email,
             subject: 'Verification Code',
             html:`Your One time code is: <b>${code}</b>`
@@ -212,5 +218,28 @@ router.post('/forgot_password',[
             message: e.message
         })
     }
+})
+
+//Route:5- To update user details will  hit to update password
+router.put('/updatePassword', async(req, res)=>{
+
+    const {email, password} = req.body;
+    try{
+        const hash = await bcrypt.hash(password, 10);
+        const user = await User.updateOne(
+            {email},
+            {$set: {password: hash}}
+        )
+        res.status(204).json({
+            status: 'success',
+            message: 'Record Updated Successfully.'
+        })
+    }catch(e){
+        return res.status(500).json({
+            status: 'failure',
+            message: e.message
+        })
+    }
+
 })
 module.exports = router

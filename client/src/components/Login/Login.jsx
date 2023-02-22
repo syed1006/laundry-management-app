@@ -2,20 +2,33 @@ import React, { useState } from 'react';
 import axios from '../../helpers/axios'
 import CompanyText from '../CompanyText/CompanyText';
 import SubFooter from '../Sub-footer/SubFooter';
+import useAuth from '../../hooks/useAuth';
 import './Login.css';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Login = ()=>{
-    const [data, setData] = useState({'email':'', 'password':''});
+    const [formData, setformData] = useState({'email':'', 'password':''});
     const [showPass, togglePass] = useState(true);
+    const [err, setError] = useState("")
+    const {setAuth} = useAuth();
+    const navigate = useNavigate();
 
     const handleLogin = async(e)=>{
         e.preventDefault();
         try{
-            console.log(data)
-            const response = await axios.post('user/login', data);
-            console.log(response)
-        }catch(e){
-            console.log(e);
+            const {data} = await axios.post('user/login', formData);
+            setAuth({token: data.token, role: data.roles});
+            localStorage.setItem('auth-token', data.token);
+            localStorage.setItem('role', data.roles);
+            navigate('/dashboard');
+        }catch({response}){
+            if(response.status === 500){
+                setError("Something went wrong , Try again later!!");
+            }else if(response.status === 401){
+                setError(response?.data?.message);
+            }else{
+                setError(response?.data?.errors[0]?.msg);
+            }
         }
 
     }
@@ -25,16 +38,17 @@ const Login = ()=>{
             <CompanyText path='/register' text='Register'/>
             <section className="form-container">
                 <h2>SIGN IN</h2>
+                <p className="errors">{err}</p>
                 <form onSubmit={handleLogin}>
                     <div className='input-container'>
                         <input 
                         className='input-item'
-                        type={'text'} 
+                        type={'email'} 
                         name='email' 
                         placeholder='Email'
                         autoComplete='off'  
-                        value={data.email}
-                        onChange={(e)=>{setData({...data, email: e.target.value})}}
+                        value={formData.email}
+                        onChange={(e)=>{setformData({...formData, email: e.target.value})}}
                         required
                         />
                     </div>
@@ -45,13 +59,14 @@ const Login = ()=>{
                         name='password' 
                         placeholder='Password'
                         autoComplete='off' 
-                        value={data.password}
-                        onChange={(e)=>{setData({...data, password: e.target.value})}}
+                        value={formData.password}
+                        onChange={(e)=>{setformData({...formData, password: e.target.value})}}
                         required
+                        minLength={5}
                         />
-                        <span id='show-password' onClick={()=>{togglePass(!showPass)}}></span>
+                        <span className='show-password' onClick={()=>{togglePass(!showPass)}}></span>
                     </div>
-                    <div className="forgot-password"><span>Forgot Password?</span></div>
+                    <div className="forgot-password"><Link to={'/forgotPassword'}>Forgot Password?</Link></div>
                     <button>Sign in</button>
                 </form>
             </section>
