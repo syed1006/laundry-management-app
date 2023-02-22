@@ -6,6 +6,7 @@ import Navbar from './components/Navbar/Navbar';
 import Login from './components/Login/Login';
 import Footer from './components/Footer/Footer';
 import Register from './components/Register/Register';
+import ForgotPassword from './components/ForgotPassword/ForgotPassword';
 
 
 
@@ -18,6 +19,7 @@ const App = ()=>{
                     <Route path='/' element={<Layout/>}>
                         <Route path='/login' element={<Login/>}/>
                         <Route path='/register' element={<Register/>}/>
+                        <Route path='/forgotPassword' element={<ForgotPassword count={0}/>}/>
 
                     </Route>
                 </Routes>

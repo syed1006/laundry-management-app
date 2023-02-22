@@ -34,9 +34,14 @@ const Register = () => {
             if(res.data.status === 'success'){
                 setSuccess(true);
             }
-        } catch ({response:{data}}) {
-            console.log(data);
-            setError(data.message)
+        } catch ({response}) {
+            if(response.status === 500){
+                setError("Something went wrong , Try again later!!");
+            }else if(response.status === 401){
+                setError(response?.data?.message);
+            }else{
+                setError(response?.data?.errors[0]?.msg);
+            }
         }
     }
     if(success){
@@ -67,7 +72,7 @@ const Register = () => {
                     <div className='input-container'>
                         <input 
                         className='input-item'
-                        type={'text'} 
+                        type={'email'} 
                         name='email' 
                         placeholder='Email'
                         autoComplete='off'  
@@ -86,6 +91,7 @@ const Register = () => {
                         value={data.password}
                         onChange={(e)=>{setData({...data, password: e.target.value})}}
                         required
+                        minLength={5}
                         />
                         <span className='show-password' onClick={()=>{togglePass(!showPass)}}></span>
                     </div>
