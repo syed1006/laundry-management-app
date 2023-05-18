@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from 'react-hot-toast';
 import CompanyText from "../CompanyText/CompanyText";
 import SubFooter from "../Sub-footer/SubFooter";
 import './Register.css';
@@ -9,13 +10,11 @@ import VerifyEmail from "../VerifyEmail/VerifyEmail";
 const Register = () => {
     const [data, setData] = useState({name: "", email: "", password: ""})
     const [showPass, togglePass] = useState(true);
-    const [err, setError] = useState("");
     const [success, setSuccess] = useState(false);
 
     const setToInitial = ()=>{
         setData({name: "", email: "", password: ""});
         togglePass(true);
-        setError("");
         setSuccess(false)
     }
 
@@ -23,24 +22,29 @@ const Register = () => {
         const password = generatePassword(16);
         togglePass(false)
         setData({...data, password});
+        toast.dismiss()
     }
     const handleRegister = async(e)=>{
         e.preventDefault();
         try {
+            toast.loading('Loading');
             const res = await axios.post(
                 '/user/register',
                 data
             );
+            toast.dismiss()
             if(res.data.status === 'success'){
+                toast.success('Registration successfull.')
                 setSuccess(true);
             }
         } catch ({response}) {
+            toast.dismiss();
             if(response.status === 500){
-                setError("Something went wrong , Try again later!!");
+                toast.error("Something went wrong , Try again later!!");
             }else if(response.status === 401){
-                setError(response?.data?.message);
+                toast.error(response?.data?.message);
             }else{
-                setError(response?.data?.errors[0]?.msg);
+                toast.error(response?.data?.errors[0]?.msg);
             }
         }
     }
@@ -55,7 +59,6 @@ const Register = () => {
                 <CompanyText path={'/login'} text='Sign In' />
                 <section className="form-container">
                     <h2>Register</h2>
-                    <p className="errors">{err}</p>
                     <form onSubmit={handleRegister}>
                     <div className='input-container'>
                         <input 

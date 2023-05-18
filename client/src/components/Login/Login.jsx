@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import axios from '../../helpers/axios'
 import CompanyText from '../CompanyText/CompanyText';
 import SubFooter from '../Sub-footer/SubFooter';
@@ -9,25 +10,28 @@ import { Link, useNavigate } from 'react-router-dom';
 const Login = ()=>{
     const [formData, setformData] = useState({'email':'', 'password':''});
     const [showPass, togglePass] = useState(true);
-    const [err, setError] = useState("")
     const {setAuth} = useAuth();
     const navigate = useNavigate();
 
     const handleLogin = async(e)=>{
         e.preventDefault();
         try{
+            toast.loading('Loading')
             const {data} = await axios.post('user/login', formData);
             setAuth({token: data.token, role: data.roles});
             localStorage.setItem('auth-token', data.token);
             localStorage.setItem('role', data.roles);
+            toast.dismiss();
+            toast.success("Successfully logged in.");
             navigate('/dashboard');
         }catch({response}){
+            toast.dismiss();
             if(response.status === 500){
-                setError("Something went wrong , Try again later!!");
+                toast.error("Something went wrong , Try again later!!");
             }else if(response.status === 401){
-                setError(response?.data?.message);
+                toast.error(response?.data?.message);
             }else{
-                setError(response?.data?.errors[0]?.msg);
+                toast.error(response?.data?.errors[0]?.msg);
             }
         }
 
@@ -38,7 +42,6 @@ const Login = ()=>{
             <CompanyText path='/register' text='Register'/>
             <section className="form-container">
                 <h2>SIGN IN</h2>
-                <p className="errors">{err}</p>
                 <form onSubmit={handleLogin}>
                     <div className='input-container'>
                         <input 
