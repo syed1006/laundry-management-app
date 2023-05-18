@@ -21,8 +21,8 @@ const userSchema = new Schema({
     },
     roles:{
         type: Number,
-        default: 1998,
-        enum: [1998, 9546]
+        default: 'user',
+        enum: ['shop', 'user']
     }
 }, {timestamps: true});
 

@@ -56,6 +56,10 @@ const orderSchema = new Schema({
     user: {
         type: Schema.Types.ObjectId,
         ref: 'users'
+    },
+    shop: {
+        type: Schema.Types.ObjectId,
+        ref: 'users'
     }
 }, {timestamps: true});
 

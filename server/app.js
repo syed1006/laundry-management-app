@@ -14,9 +14,12 @@ app.use(cors());
 
 //importing all the routes
 const userRoutes = require('./src/routes/user')
+const orderRoutes = require('./src/routes/order');
+const fetchUser = require('./src/middleware/fetchUser');
 
 
 app.use('/user',  userRoutes)
+app.use('/order', fetchUser, orderRoutes)
 
 
 
